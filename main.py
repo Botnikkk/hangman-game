@@ -4,7 +4,19 @@ file_path = "user_data"
 
 
 def centre(symbol, title) :
-    print(str(symbol)*(64-int((len(title)/2))) + title + (64-int((len(title)/2)))*str(symbol))
+    print(str(symbol)*(64-int((len(title)/2))) + title + (64-int((len(title)/2)))*str(symbol) + 2*"\n")
+
+
+def ans_check(option_list) :
+
+    for i in option_list : 
+        centre(symbol=" ", title=("* " + str(i)))
+
+    answer = input("Choose a option\n- ")
+    while answer.lower() not in option_list : 
+        print("Not a valid answer !")
+        answer = input("Choose a option\n- ")
+    return answer
 
 
 def signup():
@@ -96,7 +108,43 @@ def login() :
             if input_pass == pass_data[index] and id_trials > -1 :
                 break
     
-    centre(symbol="=", title="welcome")
+    if input_id in id_data and input_pass == pass_data[index] :
+        centre(symbol="=", title=" Welcome {user} ".format(user=input_id))
+        homescreen(input_id)
+    else : 
+        centre(symbol="=", title="You were logged out")
+
+
+def homescreen(user):
+    option_list = ["play", "leaderboard", "guide and info", "hint shop", "user info"]
+    answer = ans_check(option_list)
+    if answer == option_list[2] :
+        info(user)
+    
+    
+def info(user):
+    file = open("info.txt", "r+")
+    file.seek(0,0)
+    lines = file.readlines()
+    for i in lines : 
+        print(i,end="")
+    
+    option_list = ["back"]
+    answer = ans_check(option_list)
+
+    if answer == "back" :
+        homescreen(user)
+    
+
+
+
+
+
+
+
+
+
+
 
 #checking if file exists, creates if not
 try : 

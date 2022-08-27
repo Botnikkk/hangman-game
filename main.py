@@ -4,6 +4,18 @@ import pickle as p
 file_path = "user_data"
 
 
+def int_check(answer) :
+    integer = -1
+    while integer < 1 :
+        try : 
+            int(answer)
+            integer = int(answer)
+        except : 
+            print("Please enter a valid integer !")
+            answer = input("Enter the number of hints you wish to purchase\n- ") 
+            continue
+    return int(answer)
+
 def centre(symbol, title) :
     #aligns the title in centre with symbols around it
     print(str(symbol)*(64-int((len(title)/2))) + title + (64-int((len(title)/2)))*str(symbol) + 2*"\n")
@@ -145,6 +157,9 @@ def homescreen(user):
     elif answer == option_list[2] :
         info(user)
 
+    elif answer == option_list[3] :
+        hint_shop(user)
+        
     elif answer == option_list[4] :
         user_info(user)
 
@@ -265,6 +280,72 @@ def leaderboard(user) :
     answer = ans_check(option_list=["back"])
     homescreen(user)
 
+def hint_shop(user) : 
+    centre("=", " Hint shop ")
+
+    file = open(file_path, "rb+")
+    file.seek(0,0)
+    price_str = """
+    * For more than 1 hints purchased  : 3 points per hint
+
+    * For more than 6 hints purchased  : 2 points per hint
+    
+    * For more than 10 hints purchased  : 1 point per hint
+    """
+
+    centre(" ", price_str)
+    centre(symbol=" ", title=("* " + "back"))
+
+    all_users = []
+    while True : 
+
+        try : 
+            values = p.load(file) 
+            if values["id"] == user : 
+                user_dic = values
+            else :
+                all_users.append(values)
+
+        except EOFError :
+            break
+
+    string = "Points balance : {points}  hints balance : {hints}".format(points=user_dic["points"], hints=user_dic["hints"])
+    centre(" ", string)
+
+
+    answer = input("Enter the number of hints you wish to purchase\n- ")
+    if answer.lower() != "back" :
+        answer = int_check(answer)
+
+        if answer < 10 : 
+            cost = 2
+        elif answer < 6 :
+            cost = 3
+        elif answer >= 10 :
+            cost = 1
+
+        total = cost*answer
+
+        if user_dic["points"] >= total :
+            user_dic.update({"hints" : user_dic["hints"] + answer})
+            user_dic.update({"points" : user_dic["points"] - total})
+            string = " Your succsecfully paid {points} points and purchased {ammount} hints ".format(points=total,ammount=answer)
+            centre("-",string )
+        else :
+            print("Not enough points !")
+        all_users.append(user_dic)
+
+        file.close()
+        file = open("user_data", "bw+")
+
+        file.seek(0,0)
+        for i in all_users : 
+            p.dump(i, file)
+        file.close()
+    homescreen(user)
+
+
+
 
 
 
@@ -275,6 +356,7 @@ except :
     file = open(file_path, "bw+")
 file.close()
 
+#cool entry screen 
 string = """
 ================================================================================================================================
 |                                                                                                                              |
@@ -285,6 +367,7 @@ string = """
 ================================================================================================================================
 """
 
+#forever running loop for the game
 while 1 < 2 :
     print(string)
     centre( " ","Are you a existing user ?")

@@ -1,5 +1,7 @@
 import operator
 import pickle as p
+import asyncio 
+import random
 
 file_path = "user_data"
 
@@ -71,7 +73,7 @@ def signup():
     centre(symbol="=", title="")
     login()
 
-def login() :
+async def login() :
 
     centre(symbol="=", title=" Login page ")
 
@@ -135,11 +137,11 @@ def login() :
     #welcome screen
     if input_id in id_data and input_pass == pass_data[index] :
         centre(symbol="-", title=" Welcome {user} ".format(user=input_id))
-        homescreen(input_id)
+        await homescreen(input_id)
     else : 
         centre(symbol="=", title=" You were logged out ")
 
-def homescreen(user):
+async def homescreen(user):
     #printing home bar
     centre(symbol="=", title=" Home Page ")
 
@@ -149,24 +151,24 @@ def homescreen(user):
 
     #performing tasks based on choice
     if answer == option_list[0] :
-        a=1
+        await startgame(user)
 
     elif answer == option_list[1] :
-        leaderboard(user)
+        await leaderboard(user)
 
     elif answer == option_list[2] :
-        info(user)
+        await info(user)
 
     elif answer == option_list[3] :
-        hint_shop(user)
+        await hint_shop(user)
         
     elif answer == option_list[4] :
-        user_info(user)
+        await user_info(user)
 
     elif answer == option_list[5] :
-        centre(symbol="=", title=" You were logged out ")
+         centre(symbol="=", title=" You were logged out ")
    
-def info(user):
+async def info(user):
 
     #fetching and printing the file
     file = open("info.txt", "r+")
@@ -180,9 +182,9 @@ def info(user):
     answer = ans_check(option_list)
 
     if answer == "back" :
-        homescreen(user)
+        await homescreen(user)
 
-def user_info(user) :
+async def user_info(user) :
 
     #opening file and printing and detecting options
     file = open(file_path, "rb+")
@@ -229,15 +231,15 @@ def user_info(user) :
         else  : 
 
             #not admin
-            print("Only admins can use this option !")
+            centre("-" ,"Only admins can use this option !")
     elif answer == option_list[2] :
-        homescreen(user)
+       await homescreen(user)
     
     answer = ans_check(option_list=["back"])
-    homescreen(user)
+    await homescreen(user)
     file.close()
 
-def leaderboard(user) :
+async def leaderboard(user) :
 
     #pinting heading 
     centre("=", " Leaderboard ")
@@ -278,13 +280,15 @@ def leaderboard(user) :
     print(50*" ", string, "\n")
 
     answer = ans_check(option_list=["back"])
-    homescreen(user)
+    await homescreen(user)
 
-def hint_shop(user) : 
+async def hint_shop(user) : 
     centre("=", " Hint shop ")
 
     file = open(file_path, "rb+")
     file.seek(0,0)
+
+    #printing prices
     price_str = """
     * For more than 1 hints purchased  : 3 points per hint
 
@@ -292,10 +296,12 @@ def hint_shop(user) :
     
     * For more than 10 hints purchased  : 1 point per hint
     """
-
     centre(" ", price_str)
+
+    #back option
     centre(symbol=" ", title=("* " + "back"))
 
+    #storing data to dump later and detecting current user
     all_users = []
     while True : 
 
@@ -308,15 +314,18 @@ def hint_shop(user) :
 
         except EOFError :
             break
-
+    #printing balance
     string = "Points balance : {points}  hints balance : {hints}".format(points=user_dic["points"], hints=user_dic["hints"])
     centre(" ", string)
 
-
+    #purchase and price checking
     answer = input("Enter the number of hints you wish to purchase\n- ")
     if answer.lower() != "back" :
+
+        #confirming ineteger
         answer = int_check(answer)
 
+        #determining cost
         if answer < 10 : 
             cost = 2
         elif answer < 6 :
@@ -324,8 +333,10 @@ def hint_shop(user) :
         elif answer >= 10 :
             cost = 1
 
+        #total ammount
         total = cost*answer
 
+        #checking user info and informing if points not enough
         if user_dic["points"] >= total :
             user_dic.update({"hints" : user_dic["hints"] + answer})
             user_dic.update({"points" : user_dic["points"] - total})
@@ -333,18 +344,157 @@ def hint_shop(user) :
             centre("-",string )
         else :
             print("Not enough points !")
+
+        #updating data
         all_users.append(user_dic)
 
         file.close()
         file = open("user_data", "bw+")
 
+        #dumping the final data
         file.seek(0,0)
         for i in all_users : 
             p.dump(i, file)
         file.close()
+    await homescreen(user)
+
+async def startgame(user) :
+
+    #initiating the game
+    centre("=", " Starting the game ") 
+    print("your game will be starting in.....\n") 
+    await asyncio.sleep(0.5) 
+    for i in range(1,4) :
+        print(4-i)
+        await asyncio.sleep(1)
+
+    #iterating rounds
+    round = 1
+    centre(" ", " Round{round} ! ".format(round=round))
+    guessed = word_choose(round, user)
+    while guessed == "yes" :
+        round += 1
+        centre(" ", " Round{round} ! ".format(round=round))
+        guessed  = word_choose(round,user)
+
+    print("Do you wish to play again?")
+    ans = ans_check(option_list=["yes", "no"])
+    if ans == "yes" :
+        await startgame(user)
     homescreen(user)
 
+def word_choose(round,user) :
 
+    #extrating data
+    file = open("word_data.txt", "r+")
+    words = file.readlines()
+    file.close()
+
+    #choosing a suitable word and points via rounds 
+    word_choosen = random.choice(words) 
+    if round < 4 :
+        while len(word_choosen) > 8 :
+            word_choosen = random.choice(words)
+        point = 1
+    elif round < 10 : 
+        while len(word_choosen) > 10 and len(word_choosen) < 7 :
+             word_choosen = random.choice(words)
+        point = 3
+    else : 
+        while len(word_choosen) > 15 and len(word_choosen) < 10 :
+             word_choosen = random.choice(words)
+        point = 5
+
+    #storing word indexes and characters
+    word_choosen = word_choosen[:len(word_choosen)-1]
+    revealed_words = int(len(word_choosen)/3)
+    file.close()
+    word_list = []
+    index_list= []
+    num = 0
+    for i in word_choosen :
+        if i != "\n" :
+            if i not in word_list : 
+                word_list.append(i)
+            index_list.append(num)
+            num += 1
+    #making the scarmbled word for user
+    print_list = []
+    for i in range(len(word_choosen)) :
+        print_list.append("_")
+
+    for i in range(revealed_words) :
+        index = random.choice(index_list)
+        print_list[index] = (list(word_choosen))[index]
+        index_list.remove(index)
+    
+
+    #storing trials and initiating main game
+    word_str = ""
+    trials = 10
+    while word_str != word_choosen and trials > 0 :
+
+        #Making and printing the word
+        word_str = ""
+        for i in print_list :
+            word_str += i 
+        word_str = word_str.strip() 
+        centre(" ", word_str)
+        if word_str != word_choosen :
+            #taking input
+            input_word = input("Enter a word\n-")
+            while len(input_word)  > 1 and  not input_word.isalpha():
+                print("Please Enter a single letter")
+                input_word = input("Enter a word\n-")
+
+            #checking if input is correct
+            if input_word in word_list : 
+
+                centre("-", " Correct Guess ")
+                index = 0 
+                for i in word_choosen :
+                    if i == input_word.lower() : 
+                        print_list[index] = input_word
+                    index += 1
+            else : 
+                trials -= 1
+                centre("-", " Incorrect guess ! ")
+                centre(" ", "Trials left : {trials}".format(trials=trials))
+    
+    file = open("user_data", "rb+")
+    file.seek(0,0)
+    all_users = []
+    while True : 
+
+        try : 
+            values = p.load(file) 
+            if values["id"] == user : 
+                user_dic = values
+            else :
+                all_users.append(values)
+        except EOFError :
+            break
+    file.close()
+    #checking if the user was able to guess the word
+    if trials == 0 : 
+        guessed = "no"
+        centre("-", " You couldn't guess the word ! The game has ended ! ")
+        centre(" ", " The word was : {word} ".format(word=word_choosen))
+    else : 
+        guessed = "yes"
+        user_dic.update({"points" : user_dic["points"] + point})
+        centre("-", " You guessed the word ! You gained {points} points ! ".format(points=point))
+    all_users.append(user_dic)
+
+    file = open("user_data", "bw+")
+
+    #dumping the final data
+    file.seek(0,0)
+    for i in all_users : 
+        p.dump(i, file)
+    file.close()
+
+    return guessed
 
 
 
@@ -364,7 +514,7 @@ string = """
 |                        ░█▀▀█ ░█▄▄█ ░█░█░█ ░█─▄▄ ░█░█░█ ░█▄▄█ ░█░█░█ 　 ░█─▄▄ ░█▄▄█ ░█░█░█ ░█▀▀▀                              |
 |                        ░█─░█ ░█─░█ ░█──▀█ ░█▄▄█ ░█──░█ ░█─░█ ░█──▀█ 　 ░█▄▄█ ░█─░█ ░█──░█ ░█▄▄▄                              |
 |                                                                                                                              |
-|                                           𝙱𝚢 𝙽𝚒𝚔𝚑𝚒𝚕 𝙲𝚑𝚊𝚞𝚍𝚑𝚊𝚛𝚢 𝚊𝚗𝚍 𝙴𝚔𝚝𝚊 𝚂𝚒𝚗𝚐𝚑𝚕𝚊                                               |
+|                                           𝙱𝚢 𝙽𝚒𝚔𝚑𝚒𝚕 𝙲𝚑𝚊𝚞𝚍𝚑𝚊𝚛𝚢 𝚊𝚗𝚍 𝙴𝚔𝚝𝚊 𝚂𝚒𝚗𝚐𝚕𝚊                                                |
 |                                                                                                                              |
 ================================================================================================================================
 """
@@ -375,7 +525,7 @@ while 1 < 2 :
     centre( " ","Are you a existing user ?")
     answer  = ans_check(option_list=["yes", "no"])   
     if answer == "yes" :
-        login()
+        asyncio.run(login())
     else :
         signup()
 

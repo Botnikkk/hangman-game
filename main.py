@@ -7,6 +7,7 @@ file_path = "user_data"
 
 
 def int_check(answer) :
+    answer = str(answer).strip()
     integer = -1
     while integer < 1 :
         try : 
@@ -29,12 +30,13 @@ def ans_check(option_list) :
         centre(symbol=" ", title=("* " + str(i)))
 
     answer = input("Choose a option\n- ")
+    answer = answer.strip()
     while answer.lower() not in option_list : 
         print("Not a valid answer !")
         answer = input("Choose a option\n- ")
     return answer
 
-def signup():
+async def signup():
 
     #opening the file
     file = open(file_path, "ba+")
@@ -71,7 +73,7 @@ def signup():
     file.close()
 
     centre(symbol="=", title="")
-    login()
+    await login()
 
 async def login() :
 
@@ -251,7 +253,7 @@ async def leaderboard(user) :
 
             try : 
                 value = p.load(file) 
-                user_list.update({value["id"] : value["points"]})
+                user_list.update({value["id"] : value["score"]})
                 if value["id"] == user : 
                     user_data = value
             except EOFError :
@@ -263,7 +265,7 @@ async def leaderboard(user) :
     rank = 1
     for i in sorted_dic :
         if rank < 11 :
-            string = "Rank {rank} -> {id}".format(rank=rank,id=i[0]) + " "*(10- len(i[0])) + "points : {points}".format(points=i[1])
+            string = "Rank {rank} -> {id}".format(rank=rank,id=i[0]) + " "*(10- len(i[0])) + "score : {score}".format(score=i[1])
             print(50*" ", string)
             if i[0] == user : 
                 user_rank = rank
@@ -276,7 +278,7 @@ async def leaderboard(user) :
         user_rank = " * "
     print(2*"\n")
     centre(" ", "Your rank")
-    string = "Rank {rank} -> {id}".format(rank=user_rank,id=user_data["id"]) + " "*(10- len(i[0]))+ "points : {points}".format(points=user_data["points"])
+    string = "Rank {rank} -> {id}".format(rank=user_rank,id=user_data["id"]) + " "*(10- len(i[0]))+ "score : {score}".format(score=user_data["score"])
     print(50*" ", string, "\n")
 
     answer = ans_check(option_list=["back"])
@@ -320,16 +322,17 @@ async def hint_shop(user) :
 
     #purchase and price checking
     answer = input("Enter the number of hints you wish to purchase\n- ")
+    answer = answer.strip()
     if answer.lower() != "back" :
 
         #confirming ineteger
         answer = int_check(answer)
 
         #determining cost
-        if answer < 10 : 
-            cost = 2
-        elif answer < 6 :
+        if answer < 6 : 
             cost = 3
+        elif answer < 10 :
+            cost = 2
         elif answer >= 10 :
             cost = 1
 
@@ -365,17 +368,20 @@ async def startgame(user) :
     print("your game will be starting in.....\n") 
     await asyncio.sleep(0.5) 
     for i in range(1,4) :
-        print(4-i)
+        print(str(4-i))
         await asyncio.sleep(1)
 
     #iterating rounds
+    score = 0 
     round = 1
     centre(" ", " Round - {round} ! ".format(round=round))
-    guessed = word_choose(round, user)
+    guessed = word_choose(round, user,score)
     while guessed == "yes" :
+        score += 1
         round += 1
         centre(" ", " Round - {round} ! ".format(round=round))
-        guessed  = word_choose(round,user)
+        guessed  = word_choose(round,user,score)
+
 
     #checking if player has exited
     if guessed != "back" :
@@ -385,7 +391,7 @@ async def startgame(user) :
             await startgame(user)
     await homescreen(user)
 
-def word_choose(round,user) :
+def word_choose(round,user,score) :
 
     #extracting user data
     file = open("user_data", "rb+")
@@ -448,12 +454,11 @@ def word_choose(round,user) :
         print_list[index] = (list(word_choosen))[index]
         index_list.remove(index)
     
-
     #storing trials and initiating main game
     word_str = ""
     trials = 10
     while word_str != word_choosen and trials > 0 :
-
+        back = "false"
         #hint data
         hint_used = "no"
 
@@ -471,8 +476,8 @@ def word_choose(round,user) :
             while len(input_word)  > 1 or not input_word.isalpha():
                 #if hint used
                 if input_word.lower() == "hint" :
-                    if user_dic['hints'] != 0 :
-                        user_dic.update({"hints" : user_dic["hints"] - point})
+                    if user_dic['hints'] > 0 :
+                        user_dic.update({"hints" : user_dic["hints"] - 1})
                         input_word = word_choosen[random.choice(index_list)]
                         centre("-", " You used a hint ! You now have {hints} hints left ".format(hints=user_dic['hints']))
                         hint_used = "yes"
@@ -504,6 +509,8 @@ def word_choose(round,user) :
             else :
                 break
 
+    if score > user_dic['score'] :
+        user_dic.update({"score" : score})
     #checking if the user was able to guess the word
     if back != "true" :
         if trials == 0 : 
@@ -514,13 +521,13 @@ def word_choose(round,user) :
             guessed = "yes"
             user_dic.update({"points" : user_dic["points"] + point})
             centre("-", " You guessed the word ! You gained {points} points ! ".format(points=point))
-        all_users.append(user_dic)
 
     #if player exits the game
     else :
         centre("-"," You exited the game ! ")
         guessed = "back"
     file = open("user_data", "bw+")
+    all_users.append(user_dic)
 
     #dumping the final data
     file.seek(0,0)
@@ -561,5 +568,5 @@ while 1 < 2 :
     if answer == "yes" :
         asyncio.run(login())
     else :
-        signup()
+        asyncio.run(signup())
 

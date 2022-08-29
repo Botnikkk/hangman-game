@@ -1,6 +1,6 @@
 Info : 
 
-This game was developed by Nikhil Chaudhary and Ekta Singhla, it is a simple hangman game with a variety of extra options like :
+This game was developed by Nikhil Chaudhary and Ekta Singla, it is a simple hangman game with a variety of extra options like :
 
 -> Buying and using hints
 

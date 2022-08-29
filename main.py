@@ -370,20 +370,40 @@ async def startgame(user) :
 
     #iterating rounds
     round = 1
-    centre(" ", " Round{round} ! ".format(round=round))
+    centre(" ", " Round - {round} ! ".format(round=round))
     guessed = word_choose(round, user)
     while guessed == "yes" :
         round += 1
-        centre(" ", " Round{round} ! ".format(round=round))
+        centre(" ", " Round - {round} ! ".format(round=round))
         guessed  = word_choose(round,user)
 
-    print("Do you wish to play again?")
-    ans = ans_check(option_list=["yes", "no"])
-    if ans == "yes" :
-        await startgame(user)
-    homescreen(user)
+    #checking if player has exited
+    if guessed != "back" :
+        print("Do you wish to play again?")
+        ans = ans_check(option_list=["yes", "no"])
+        if ans == "yes" :
+            await startgame(user)
+    await homescreen(user)
 
 def word_choose(round,user) :
+
+    #extracting user data
+    file = open("user_data", "rb+")
+    file.seek(0,0)
+    all_users = []
+    while True : 
+
+        try : 
+            values = p.load(file) 
+            if values["id"] == user : 
+                user_dic = values
+            else :
+                all_users.append(values)
+        except EOFError :
+            break
+    file.close()
+
+
 
     #extrating data
     file = open("word_data.txt", "r+")
@@ -434,58 +454,72 @@ def word_choose(round,user) :
     trials = 10
     while word_str != word_choosen and trials > 0 :
 
+        #hint data
+        hint_used = "no"
+
         #Making and printing the word
         word_str = ""
         for i in print_list :
             word_str += i 
         word_str = word_str.strip() 
         centre(" ", word_str)
+        centre(" ", "* hint")
+        centre(" ", "* back")
         if word_str != word_choosen :
             #taking input
             input_word = input("Enter a word\n-")
-            while len(input_word)  > 1 and  not input_word.isalpha():
+            while len(input_word)  > 1 or not input_word.isalpha():
+                #if hint used
+                if input_word.lower() == "hint" :
+                    if user_dic['hints'] != 0 :
+                        user_dic.update({"hints" : user_dic["hints"] - point})
+                        input_word = word_choosen[random.choice(index_list)]
+                        centre("-", " You used a hint ! You now have {hints} hints left ".format(hints=user_dic['hints']))
+                        hint_used = "yes"
+                        break
+                    else : 
+                        print("You have exhausted all your hints !")
+                #if player has exited
+                elif input_word.lower( ) == "back" : 
+                    back = "true"
+                    break
                 print("Please Enter a single letter")
                 input_word = input("Enter a word\n-")
-
-            #checking if input is correct
-            if input_word in word_list : 
-
-                centre("-", " Correct Guess ")
-                index = 0 
-                for i in word_choosen :
-                    if i == input_word.lower() : 
-                        print_list[index] = input_word
-                    index += 1
-            else : 
-                trials -= 1
-                centre("-", " Incorrect guess ! ")
-                centre(" ", "Trials left : {trials}".format(trials=trials))
-    
-    file = open("user_data", "rb+")
-    file.seek(0,0)
-    all_users = []
-    while True : 
-
-        try : 
-            values = p.load(file) 
-            if values["id"] == user : 
-                user_dic = values
+            if back != "true" :
+                #checking if input is correct
+                if input_word in word_list : 
+                    if hint_used == 'no' :
+                        centre("-", " Correct Guess ")
+                    index = 0 
+                    for i in word_choosen :
+                        if i == input_word.lower() : 
+                            print_list[index] = input_word
+                            if index in index_list :
+                                index_list.remove(index)
+                        index += 1
+                else : 
+                    trials -= 1
+                    centre("-", " Incorrect guess ! ")
+                    centre(" ", "Trials left : {trials}".format(trials=trials))
             else :
-                all_users.append(values)
-        except EOFError :
-            break
-    file.close()
-    #checking if the user was able to guess the word
-    if trials == 0 : 
-        guessed = "no"
-        centre("-", " You couldn't guess the word ! The game has ended ! ")
-        centre(" ", " The word was : {word} ".format(word=word_choosen))
-    else : 
-        guessed = "yes"
-        user_dic.update({"points" : user_dic["points"] + point})
-        centre("-", " You guessed the word ! You gained {points} points ! ".format(points=point))
-    all_users.append(user_dic)
+                break
 
+    #checking if the user was able to guess the word
+    if back != "true" :
+        if trials == 0 : 
+            guessed = "no"
+            centre("-", " You couldn't guess the word ! The game has ended ! ")
+            centre(" ", " The word was : {word} ".format(word=word_choosen))
+        else : 
+            guessed = "yes"
+            user_dic.update({"points" : user_dic["points"] + point})
+            centre("-", " You guessed the word ! You gained {points} points ! ".format(points=point))
+        all_users.append(user_dic)
+
+    #if player exits the game
+    else :
+        centre("-"," You exited the game ! ")
+        guessed = "back"
     file = open("user_data", "bw+")
 
     #dumping the final data

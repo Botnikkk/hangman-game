@@ -39,7 +39,7 @@ def ans_check(option_list) :
 async def signup():
 
     #opening the file
-    file = open(file_path, "ba+")
+    file = open(file_path, "ab+")
     file.seek(0,0)
 
     #storing existing ids
@@ -68,7 +68,7 @@ async def signup():
         pass_input = input("Enter a 8 character long password\n- ")
     
     #storing data
-    update_dic = {"id" : id_input.lower(), "pass" : pass_input.lower(), "hints" : 0, "points" : 0, "score" : 0}
+    update_dic = {"id" : id_input.lower(), "pass" : pass_input.lower(), "hints" : 3, "points" : 0, "score" : 0}
     p.dump(update_dic, file)
     file.close()
 
@@ -99,56 +99,48 @@ async def login() :
 
     #checking id
     input_id = input("Enter your ID\n- ")
-    if input_id in id_data and id_trials > -1 : 
+    if input_id in id_data  : 
             index = id_data.index(input_id)
-            #checking pass
-            input_pass = input("Enter your password\n- ")
-            if input_pass.lower() != pass_data[index] :
 
-                while input_pass != pass_data[index] and pass_trials > 0 : 
-
-                    print("Incorrect password!\nTrial left = {trials}".format(trials=pass_trials))
-                    input_pass = input("Enter your password\n- ")
-                    pass_trials -= 1
-
-                    if input_pass == pass_data[index] and id_trials > -1 :
-                        break
     else:
         while input_id not in id_data and id_trials > 0 :
-            print("ID wasn't found\nTrials left = {trials}".format(trials=id_trials))
+            centre(" ", " No such ID was found ! you have {trials} trials left ".format(trials=id_trials))
             input_id = input("Enter your ID\n- ")
             id_trials -= 1
 
-            if input_id in id_data and id_trials > -1 : 
+            if input_id in id_data and id_trials >= 0 : 
                 index = id_data.index(input_id)
                 break
+
+    if id_trials >= 0 and input_id in id_data  :
         #checking pass
         input_pass = input("Enter your password\n- ")
         if input_pass.lower() != pass_data[index] :
 
             while input_pass != pass_data[index] and pass_trials > 0 : 
 
-                print("Incorrect password!\nTrial left = {trials}".format(trials=pass_trials))
+                centre(" ", " incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
                 input_pass = input("Enter your password\n- ")
                 pass_trials -= 1
-
-                if input_pass == pass_data[index] and id_trials > -1 :
+                if input_pass == pass_data[index] :
                     break
     
-    
-    #welcome screen
-    if input_id in id_data and input_pass == pass_data[index] :
-        centre(symbol="-", title=" Welcome {user} ".format(user=input_id))
-        await homescreen(input_id)
+        if pass_trials >= 0 and input_pass == pass_data[index] :
+            #welcome screen
+            if input_id in id_data and input_pass == pass_data[index] :
+                centre(symbol="-", title=" Welcome {user} ".format(user=input_id))
+                await homescreen(input_id)
+        else : 
+                centre(symbol="=", title=" You were logged out ")
     else : 
-        centre(symbol="=", title=" You were logged out ")
+                centre(symbol="=", title=" You were logged out ")
 
 async def homescreen(user):
     #printing home bar
     centre(symbol="=", title=" Home Page ")
 
     #printing and detecting option choices
-    option_list = ["play", "leaderboard", "guide and info", "hint shop", "user info", "log out"]
+    option_list = ["play", "leaderboard", "guide and info", "hint shop", "user info", "delete account", "log out"]
     answer = ans_check(option_list)
 
     #performing tasks based on choice
@@ -168,6 +160,9 @@ async def homescreen(user):
         await user_info(user)
 
     elif answer == option_list[5] :
+        await del_acc(user)
+
+    elif answer == option_list[6] :
          centre(symbol="=", title=" You were logged out ")
    
 async def info(user):
@@ -537,9 +532,54 @@ def word_choose(round,user,score) :
 
     return guessed
 
+async def del_acc(user) :
 
+    #printing main screen
+    centre("=", " Accound deletion ")
+    centre(" ", "Are you sure you wish to delete your account?")
+    answer = ans_check(option_list=["yes", "no"])
 
+    #storing user data
+    all_users = []
+    if answer == "yes" :
+        file = open(file_path, "rb+")
+        while True : 
+            try : 
+                values = p.load(file) 
+                if values["id"] == user : 
+                    user_dic = values
+                else : 
+                    all_users.append(values)
 
+            except EOFError :
+                break
+        file.close()
+
+        #confirmation
+        trials  = 2
+        password = input("Enter your password for confirmation\n- ")
+        while password != user_dic["pass"] and trials > 0 :
+            centre(" ", " incorrect password ! you have {trials} trials left ".format(trials=trials))
+            password = input("Enter your password for confirmation\n- ")
+            trials -= 1
+        if trials <= 0 : 
+            centre("=", " Action revoked because you could not enter the correct password ! ")
+            await homescreen(user)
+            all_users.append(user_dic)
+        else : 
+            centre("=", " Sucssefully deleted account ! ")
+        
+        file = open(file_path, "wb+")
+        for i in all_users : 
+            p.dump(i,file)
+        file.close()
+        
+    else : 
+        centre("=", " Action revoked ! ")
+        await homescreen(user)
+    
+        
+    
 #checking if file exists, creates if not
 try : 
     file = open(file_path, "br+")
@@ -548,25 +588,24 @@ except :
 file.close()
 
 #cool entry screen 
-string = """
-================================================================================================================================
-|                                                                                                                              |
-|                        ░█─░█ ─█▀▀█ ░█▄─░█ ░█▀▀█ ░█▀▄▀█ ─█▀▀█ ░█▄─░█ 　 ░█▀▀█ ─█▀▀█ ░█▀▄▀█ ░█▀▀▀                              | 
-|                        ░█▀▀█ ░█▄▄█ ░█░█░█ ░█─▄▄ ░█░█░█ ░█▄▄█ ░█░█░█ 　 ░█─▄▄ ░█▄▄█ ░█░█░█ ░█▀▀▀                              |
-|                        ░█─░█ ░█─░█ ░█──▀█ ░█▄▄█ ░█──░█ ░█─░█ ░█──▀█ 　 ░█▄▄█ ░█─░█ ░█──░█ ░█▄▄▄                              |
-|                                                                                                                              |
-|                                           𝙱𝚢 𝙽𝚒𝚔𝚑𝚒𝚕 𝙲𝚑𝚊𝚞𝚍𝚑𝚊𝚛𝚢 𝚊𝚗𝚍 𝙴𝚔𝚝𝚊 𝚂𝚒𝚗𝚐𝚕𝚊                                                |
-|                                                                                                                              |
-================================================================================================================================
-"""
+file = open("design.txt",encoding= "utf8")
+lines = file.readlines()
+string = ""
+string += "="*130 + '\n'
+for i in lines : 
+        gap = (64 - int(len(i)/2))*" "
+        string += "|" + gap + i.rstrip("\n") + gap + "|" + "\n"
+string += "="*130 + '\n'
+
 
 #forever running loop for the game
 while 1 < 2 :
     print(string)
     centre( " ","Are you a existing user ?")
-    answer  = ans_check(option_list=["yes", "no"])   
+    answer  = ans_check(option_list=["yes", "no", "exit game"])   
     if answer == "yes" :
         asyncio.run(login())
-    else :
+    elif answer == "no" :
         asyncio.run(signup())
-
+    else :
+        break

@@ -260,7 +260,10 @@ async def leaderboard(user) :
     rank = 1
     for i in sorted_dic :
         if rank < 11 :
-            string = "Rank {rank} -> {id}".format(rank=rank,id=i[0]) + " "*(10- len(i[0])) + "score : {score}".format(score=i[1])
+            gap = 0
+            if rank == 10 :
+                gap = 1
+            string = "Rank {rank} -> {id}".format(rank=rank,id=i[0]) + " "*(10- len(i[0]) - gap) + "score : {score}".format(score=i[1])
             print(50*" ", string)
             if i[0] == user : 
                 user_rank = rank
@@ -608,4 +611,5 @@ while 1 < 2 :
     elif answer == "no" :
         asyncio.run(signup())
     else :
+        centre("="," Exited the game ")
         break

@@ -503,6 +503,7 @@ def word_choose(round,user,score) :
                 else : 
                     trials -= 1
                     centre("-", " Incorrect guess ! ")
+                    print(hangman_list[9-trials])
                     centre(" ", "Trials left : {trials}".format(trials=trials))
             else :
                 break
@@ -589,6 +590,21 @@ try :
 except :
     file = open(file_path, "bw+")
 file.close()
+
+#creating the list to print the hangman
+file = open("hangman.txt", "r+")
+hangman = file.readlines()
+file.close()
+hangman_list = []
+string = ""
+for i in hangman :
+    try : 
+        int(i.strip('\n'))
+        hangman_list.append(string)
+        string = ""
+    except :
+        string += 50*" " + i
+
 
 #cool entry screen 
 file = open("design.txt",encoding= "utf8")

@@ -598,7 +598,6 @@ string = ""
 string += "="*130 + '\n'
 for i in lines : 
         gap = (64 - int(len(i)/2))*" "
-        print(len(gap))
         string += "|" + gap + i.rstrip("\n") + gap + "|" + "\n" 
 string += "="*130 + '\n'
 

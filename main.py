@@ -593,13 +593,15 @@ file.close()
 #cool entry screen 
 file = open("design.txt",encoding= "utf8")
 lines = file.readlines()
+file.close()
+print(lines)
 string = ""
 string += "="*130 + '\n'
 for i in lines : 
         gap = (64 - int(len(i)/2))*" "
-        string += "|" + gap + i.rstrip("\n") + gap + "|" + "\n"
+        print(len(gap))
+        string += "|" + gap + i.rstrip("\n") + gap + "|" + "\n" 
 string += "="*130 + '\n'
-
 
 #forever running loop for the game
 while 1 < 2 :

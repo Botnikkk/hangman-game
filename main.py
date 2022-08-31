@@ -594,7 +594,6 @@ file.close()
 file = open("design.txt",encoding= "utf8")
 lines = file.readlines()
 file.close()
-print(lines)
 string = ""
 string += "="*130 + '\n'
 for i in lines : 

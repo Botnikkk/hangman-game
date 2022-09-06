@@ -57,7 +57,7 @@ def ans_check(option_list) :
         
     return option_list[int(answer) - 1]
 
-async def signup():
+async def signup(): 
 
     #opening the file
     file = open(file_path, "ab+")
@@ -89,12 +89,12 @@ async def signup():
     #taking pass input
     ques = "Enter a 8 or more character long password"
     string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-    pass_input = input(string)
+    pass_input = maskpass.advpass(prompt=string, mask="*")
     while len(pass_input) < 8:
         centre( " ", "Password is too short")
         ques = "Enter a 8 or more character long password"
         string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-        pass_input = input(string)
+        pass_input = maskpass.advpass(prompt=string, mask="*")
     
     #storing data
     update_dic = {"id" : id_input.lower(), "pass" : pass_input.lower(), "hints" : 3, "points" : 0, "score" : 0}
@@ -149,7 +149,7 @@ async def login() :
         #checking pass
         ques = "Enter your password"
         string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-        input_pass = maskpass.askpass(prompt=string, mask="*")
+        input_pass = maskpass.advpass(prompt=string, mask="*")
         if input_pass.lower() != pass_data[index] :
 
             while input_pass != pass_data[index] and pass_trials > 0 : 
@@ -157,7 +157,7 @@ async def login() :
                 centre(" ", " incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
                 ques = "Enter your password"
                 string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-                input_pass = maskpass.askpass(prompt=string, mask="*")
+                input_pass = maskpass.advpass(prompt=string, mask="*")
                 pass_trials -= 1
                 if input_pass == pass_data[index] :
                     break

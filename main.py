@@ -2,6 +2,7 @@ import operator
 import pickle as p
 import asyncio 
 import random
+import maskpass
 
 file_path = "user_data"
 middle  = 46*" "
@@ -148,7 +149,7 @@ async def login() :
         #checking pass
         ques = "Enter your password"
         string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-        input_pass = input(string)
+        input_pass = maskpass.askpass(prompt=string, mask="*")
         if input_pass.lower() != pass_data[index] :
 
             while input_pass != pass_data[index] and pass_trials > 0 : 
@@ -156,7 +157,7 @@ async def login() :
                 centre(" ", " incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
                 ques = "Enter your password"
                 string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-                input_pass = input(string)
+                input_pass = maskpass.askpass(prompt=string, mask="*")
                 pass_trials -= 1
                 if input_pass == pass_data[index] :
                     break

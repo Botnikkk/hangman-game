@@ -4,7 +4,13 @@ import asyncio
 import random
 
 file_path = "user_data"
+middle  = 46*" "
 
+
+def format_input(ques) : 
+    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+    output = input(string)
+    return output
 
 def int_check(answer) :
     answer = str(answer).strip()
@@ -14,27 +20,41 @@ def int_check(answer) :
             int(answer)
             integer = int(answer)
         except : 
-            print("Please enter a valid integer !")
-            answer = input("Enter the number of hints you wish to purchase\n- ") 
+            centre( " ", "Please enter a valid integer !")
+            ques = "Enter a number -"
+            string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+            answer = input(string) 
             continue
     return int(answer)
 
 def centre(symbol, title) :
     #aligns the title in centre with symbols around it
-    print(str(symbol)*(64-int((len(title)/2))) + title + (64-int((len(title)/2)))*str(symbol) + 2*"\n")
+    gap = str(symbol)*(64-int((len(title)/2)))
+    gap2 = str(symbol)*(128- len(title) - len(gap))
+    print( middle + "|" + gap + title + gap2 + "|" + "\n" + middle + "|" + 128*" " + "|")
 
 def ans_check(option_list) :
 
     #prints and detetcs the answers and returns the choose answer
+    centre("-","-")
     for i in option_list : 
-        centre(symbol=" ", title=("* " + str(i)))
-
-    answer = input("Choose a option\n- ")
+        centre(symbol=" ", title=(str(option_list.index(i) + 1) + ".) " + str(i)))
+    centre("-","-")
+    ques = "Choose a option"
+    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+    answer = input(string)
     answer = answer.strip()
-    while answer.lower() not in option_list : 
-        print("Not a valid answer !")
-        answer = input("Choose a option\n- ")
-    return answer
+    answer = int_check(answer)
+    while int(answer) > len(option_list) :
+            print( middle, "Not a valid answer !")
+            input_str = middle  + "Choose a option\n" + middle + "-"
+            answer = input(input_str)
+            try :
+                int(answer) 
+            except  :
+                answer = int_check(answer)
+        
+    return option_list[int(answer) - 1]
 
 async def signup():
 
@@ -56,16 +76,24 @@ async def signup():
     centre(symbol="=", title=" Sign up page ")
 
     #taking id input
-    id_input = input("Enter ID that you wish to register wish\n- ")
+    ques = "Enter ID that you wish to register wish"
+    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+    id_input = input(string)
     while id_input.lower() in id_data :
-        print("ID already exists")
-        id_input = input("Enter ID that you wish to register wish\n- ")
+        centre( " ", "ID already exists")
+        ques = "Enter ID that you wish to register wish"
+        string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+        id_input = input(string)
     
     #taking pass input
-    pass_input = input("Enter a 8 or more character long password\n- ")
+    ques = "Enter a 8 or more character long password"
+    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+    pass_input = input(string)
     while len(pass_input) < 8:
-        print("Password is too short")
-        pass_input = input("Enter a 8 character long password\n- ")
+        centre( " ", "Password is too short")
+        ques = "Enter a 8 or more character long password"
+        string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+        pass_input = input(string)
     
     #storing data
     update_dic = {"id" : id_input.lower(), "pass" : pass_input.lower(), "hints" : 3, "points" : 0, "score" : 0}
@@ -98,14 +126,18 @@ async def login() :
     pass_trials = 2
 
     #checking id
-    input_id = input("Enter your ID\n- ")
+    ques = "Enter your ID"
+    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+    input_id = input(string)
     if input_id in id_data  : 
             index = id_data.index(input_id)
 
     else:
         while input_id not in id_data and id_trials > 0 :
             centre(" ", " No such ID was found ! you have {trials} trials left ".format(trials=id_trials))
-            input_id = input("Enter your ID\n- ")
+            ques = "Enter your ID"
+            string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+            input_id = input(string)
             id_trials -= 1
 
             if input_id in id_data and id_trials >= 0 : 
@@ -114,13 +146,17 @@ async def login() :
 
     if id_trials >= 0 and input_id in id_data  :
         #checking pass
-        input_pass = input("Enter your password\n- ")
+        ques = "Enter your password"
+        string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+        input_pass = input(string)
         if input_pass.lower() != pass_data[index] :
 
             while input_pass != pass_data[index] and pass_trials > 0 : 
 
                 centre(" ", " incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
-                input_pass = input("Enter your password\n- ")
+                ques = "Enter your password"
+                string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+                input_pass = input(string)
                 pass_trials -= 1
                 if input_pass == pass_data[index] :
                     break
@@ -169,10 +205,30 @@ async def info(user):
 
     #fetching and printing the file
     file = open("info.txt", "r+")
-    file.seek(0,0)
     lines = file.readlines()
+    middle = 46*" "
+    word_list = [] 
     for i in lines : 
-        print(i,end="")
+        l = i.split(" ")
+        for k in l :
+            word_list.append(k)
+
+    limit = 0
+    string = ""
+    centre("=", " Guide to the game ")
+    for k in word_list :
+            if '\n' in k :
+                limit += 128-len(k)
+            else :
+                limit += len(k) + 1
+            if limit < 127 : 
+                string += k + " " 
+            else : 
+                lines = string.split("\n")
+                for i in lines :
+                    print(middle + "|", i + (127 - len(i))*" " + "|")
+                    string = ""
+                    limit = 0
     
     #returning to homescreen
     option_list = ["back"]
@@ -199,8 +255,10 @@ async def user_info(user) :
                 if values["id"] == user : 
                     string = "Info of {}".format(user)
                     centre(symbol= "-",title=string)
-                    print("Hints = {hints}\nPoints = {points}\nScore = {score}".format(hints=values["hints"], points=values["points"], score = values["score"]))
-
+                    string = "Hints = {hints}\nPoints = {points}\nScore = {score}".format(hints=values["hints"], points=values["points"], score = values["score"])
+                    str_list = string.split("\n")
+                    for i in str_list : 
+                        centre(" ", i)
             except EOFError :
                 break
 
@@ -210,7 +268,7 @@ async def user_info(user) :
         if user in ["nikhil", "ekta"] :
             
             #admin
-            input_id = input("Enter the ID you wish to search for\n- ")
+            input_id = format_input("Enter the ID you wish to search for") 
             found = 0
             while True : 
 
@@ -219,12 +277,15 @@ async def user_info(user) :
                     if values["id"] == input_id.lower() :
                         string = "Info of {}".format(input_id)
                         centre(symbol= "-",title=string)
-                        print("Hints = {hints}\nPoints = {points}\nScore = {score}".format(hints=values["hints"], points=values["points"], score = values["score"]))
+                        string = "Hints = {hints}\nPoints = {points}\nScore = {score}".format(hints=values["hints"], points=values["points"], score = values["score"])
+                        str_list = string.split("\n")
+                        for i in str_list : 
+                            centre(" ", i)
                         found = 1
                 except EOFError :
                     break
             if found == 0 :
-                print("No user with such ID was found")
+                centre(" ", "No user with such ID was found")
         else  : 
 
             #not admin
@@ -264,7 +325,7 @@ async def leaderboard(user) :
             if rank == 10 :
                 gap = 1
             string = "Rank {rank} -> {id}".format(rank=rank,id=i[0]) + " "*(10- len(i[0]) - gap) + "score : {score}".format(score=i[1])
-            print(50*" ", string)
+            centre(" ", string)
             if i[0] == user : 
                 user_rank = rank
             rank += 1
@@ -274,10 +335,9 @@ async def leaderboard(user) :
     #printing self rank
     if user_rank == 0 : 
         user_rank = " * "
-    print(2*"\n")
     centre(" ", "Your rank")
     string = "Rank {rank} -> {id}".format(rank=user_rank,id=user_data["id"]) + " "*(10- len(i[0]))+ "score : {score}".format(score=user_data["score"])
-    print(50*" ", string, "\n")
+    centre(*" ", string)
 
     answer = ans_check(option_list=["back"])
     await homescreen(user)
@@ -289,14 +349,9 @@ async def hint_shop(user) :
     file.seek(0,0)
 
     #printing prices
-    price_str = """
-    * For more than 1 hints purchased  : 3 points per hint
-
-    * For more than 6 hints purchased  : 2 points per hint
-    
-    * For more than 10 hints purchased  : 1 point per hint
-    """
-    centre(" ", price_str)
+    centre (" ", "* For more than 1 hints purchased  : 3 points per hint")
+    centre(" ","* For more than 6 hints purchased  : 2 points per hint")
+    centre(" ","* For more than 10 hints purchased  : 1 point per hint")
 
     #back option
     centre(symbol=" ", title=("* " + "back"))
@@ -319,8 +374,9 @@ async def hint_shop(user) :
     centre(" ", string)
 
     #purchase and price checking
-    answer = input("Enter the number of hints you wish to purchase\n- ")
-    answer = answer.strip()
+    ques = "Enter the number of hints you wish to purchase -"
+    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+    answer = input(string) 
     if answer.lower() != "back" :
 
         #confirming ineteger
@@ -344,7 +400,7 @@ async def hint_shop(user) :
             string = " Your succsecfully paid {points} points and purchased {ammount} hints ".format(points=total,ammount=answer)
             centre("-",string )
         else :
-            print("Not enough points !")
+            centre("-","Not enough points !")
 
         #updating data
         all_users.append(user_dic)
@@ -363,10 +419,10 @@ async def startgame(user) :
 
     #initiating the game
     centre("=", " Starting the game ") 
-    print("your game will be starting in.....\n") 
+    centre(" ", "your game will be starting in.....") 
     await asyncio.sleep(0.5) 
     for i in range(1,4) :
-        print(str(4-i))
+        centre(" " ,str(4-i))
         await asyncio.sleep(1)
 
     #iterating rounds
@@ -383,7 +439,7 @@ async def startgame(user) :
 
     #checking if player has exited
     if guessed != "back" :
-        print("Do you wish to play again?")
+        centre(" " , "Do you wish to play again?")
         ans = ans_check(option_list=["yes", "no"])
         if ans == "yes" :
             await startgame(user)
@@ -469,8 +525,10 @@ def word_choose(round,user,score) :
         centre(" ", "* hint")
         centre(" ", "* back")
         if word_str != word_choosen :
-            #taking input
-            input_word = input("Enter a word\n-")
+            #taking input 
+            ques = "Enter a word"
+            string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+            input_word = input(string)
             while len(input_word)  > 1 or not input_word.isalpha():
                 #if hint used
                 if input_word.lower() == "hint" :
@@ -481,13 +539,15 @@ def word_choose(round,user,score) :
                         hint_used = "yes"
                         break
                     else : 
-                        print("You have exhausted all your hints !")
+                        print( middle, "You have exhausted all your hints !")
                 #if player has exited
                 elif input_word.lower( ) == "back" : 
                     back = "true"
                     break
-                print("Please Enter a single letter")
-                input_word = input("Enter a word\n-")
+                centre( " ", "Please Enter a single letter")
+                ques = "Enter a word"
+                string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+                input_word = input(string)
             if back != "true" :
                 #checking if input is correct
                 if input_word in word_list : 
@@ -504,6 +564,7 @@ def word_choose(round,user,score) :
                     trials -= 1
                     centre("-", " Incorrect guess ! ")
                     print(hangman_list[9-trials])
+                    centre(" "," ")
                     centre(" ", "Trials left : {trials}".format(trials=trials))
             else :
                 break
@@ -561,7 +622,7 @@ async def del_acc(user) :
 
         #confirmation
         trials  = 2
-        password = input("Enter your password for confirmation\n- ")
+        password = format_input("Enter your password for confirmation")
         while password != user_dic["pass"] and trials > 0 :
             centre(" ", " incorrect password ! you have {trials} trials left ".format(trials=trials))
             password = input("Enter your password for confirmation\n- ")
@@ -600,26 +661,23 @@ string = ""
 for i in hangman :
     try : 
         int(i.strip('\n'))
-        hangman_list.append(string)
+        hangman_list.append(string.rstrip("\n"))
         string = ""
     except :
-        string += 50*" " + i
-
+        gap = " "*(129 - int((len(i))) - 50)
+        string += middle + "|" + " "*(50)  +  i.strip("\n") +  gap + "|\n"
 
 #cool entry screen 
 file = open("design.txt",encoding= "utf8")
 lines = file.readlines()
 file.close()
-string = ""
-string += "="*130 + '\n'
-for i in lines : 
-        gap = (64 - int(len(i)/2))*" "
-        string += "|" + gap + i.rstrip("\n") + gap + "|" + "\n" 
-string += "="*130 + '\n'
+
 
 #forever running loop for the game
 while 1 < 2 :
-    print(string)
+    string = ""
+    for i in  lines : 
+        print(middle + i.strip('\n'))
     centre( " ","Are you a existing user ?")
     answer  = ans_check(option_list=["yes", "no", "exit game"])   
     if answer == "yes" :

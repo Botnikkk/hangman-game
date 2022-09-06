@@ -1,6 +1,6 @@
-Info : 
+Info :
 
-This game was developed by Nikhil Chaudhary and Ekta Singla, it is a simple hangman game with a variety of extra options like :
+This game was developed by Nikhil Chaudhary, Raghav Prakash and Ekta Singla, it is a simple hangman game with a variety of extra options like :
 
 -> Buying and using hints
 
@@ -10,7 +10,7 @@ This game was developed by Nikhil Chaudhary and Ekta Singla, it is a simple hang
 
 
 
-Guide : 
+Guide :
 
 After choosing the option "play" the game will start in 3 seconds here is the guide for the game :
 

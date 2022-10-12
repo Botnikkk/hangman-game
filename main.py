@@ -47,9 +47,8 @@ def ans_check(option_list) :
     answer = answer.strip()
     answer = int_check(answer)
     while int(answer) > len(option_list) :
-            print( middle, "Not a valid answer !")
-            input_str = middle  + "Choose a option\n" + middle + "-"
-            answer = input(input_str)
+            centre(" ","Not a valid answer !")
+            answer = format_input("Choose a option")
             try :
                 int(answer) 
             except  :
@@ -234,9 +233,7 @@ async def info(user):
     #returning to homescreen
     option_list = ["back"]
     answer = ans_check(option_list)
-
-    if answer == "back" :
-        await homescreen(user)
+    await homescreen(user)
 
 async def user_info(user) :
 
@@ -262,8 +259,8 @@ async def user_info(user) :
                         centre(" ", i)
             except EOFError :
                 break
-
     elif answer == option_list[1] : 
+
 
         #admin check
         if user in ["nikhil", "ekta"] :
@@ -290,11 +287,9 @@ async def user_info(user) :
         else  : 
 
             #not admin
-            centre("-" ,"Only admins can use this option !")
-    elif answer == option_list[2] :
-       await homescreen(user)
-    
-    answer = ans_check(option_list=["back"])
+            centre("-" ,"Only admins can use this option !")   
+    if answer != option_list[2] :
+        answer = ans_check(option_list=["back"])
     await homescreen(user)
     file.close()
 

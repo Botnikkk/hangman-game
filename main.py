@@ -3,6 +3,7 @@ import pickle as p
 import asyncio 
 import random
 import maskpass
+import os
 
 file_path = "user_data"
 middle  = 46*" "
@@ -57,6 +58,8 @@ def ans_check(option_list) :
     return option_list[int(answer) - 1]
 
 async def signup(): 
+    os.system('cls')
+    centre("-","-")
 
     #opening the file
     file = open(file_path, "ab+")
@@ -104,7 +107,8 @@ async def signup():
     await login()
 
 async def login() :
-
+    os.system('cls')
+    centre("-","-")
     centre(symbol="=", title=" Login page ")
 
     file = open(file_path, "br+")
@@ -172,6 +176,8 @@ async def login() :
                 centre(symbol="=", title=" You were logged out ")
 
 async def homescreen(user):
+    os.system('cls')
+    centre("-","-")
     #printing home bar
     centre(symbol="=", title=" Home Page ")
 
@@ -202,7 +208,8 @@ async def homescreen(user):
          centre(symbol="=", title=" You were logged out ")
    
 async def info(user):
-
+    os.system('cls')
+    centre("-","-")
     #fetching and printing the file
     file = open("info.txt", "r+")
     lines = file.readlines()
@@ -236,7 +243,8 @@ async def info(user):
     await homescreen(user)
 
 async def user_info(user) :
-
+    os.system('cls')
+    centre("-","-")
     #opening file and printing and detecting options
     file = open(file_path, "rb+")
     centre(symbol="=", title=" User Info ")
@@ -294,7 +302,8 @@ async def user_info(user) :
     file.close()
 
 async def leaderboard(user) :
-
+    os.system('cls')
+    centre("-","-")
     #pinting heading 
     centre("=", " Leaderboard ")
     file = open(file_path, "rb+")
@@ -339,6 +348,8 @@ async def leaderboard(user) :
     await homescreen(user)
 
 async def hint_shop(user) : 
+    os.system('cls')
+    centre("-","-")
     centre("=", " Hint shop ")
 
     file = open(file_path, "rb+")
@@ -413,6 +424,18 @@ async def hint_shop(user) :
 
 async def startgame(user) :
 
+    guessed = await newgame(user)
+    #checking if player has exited
+    if guessed != "back" :
+        centre(" " , "Do you wish to play again?")
+        ans = ans_check(option_list=["yes", "no"])
+        if ans == "yes" :
+            guessed = await newgame(user)
+    await homescreen(user)
+
+async def newgame(user) :
+    os.system('cls')
+    centre("-","-")
     #initiating the game
     centre("=", " Starting the game ") 
     centre(" ", "your game will be starting in.....") 
@@ -424,25 +447,18 @@ async def startgame(user) :
     #iterating rounds
     score = 0 
     round = 1
-    centre(" ", " Round - {round} ! ".format(round=round))
-    guessed = word_choose(round, user,score)
+    guessed = await word_choose(round, user,score)
     while guessed == "yes" :
         score += 1
         round += 1
         centre(" ", " Round - {round} ! ".format(round=round))
-        guessed  = word_choose(round,user,score)
+        guessed  = await word_choose(round,user,score)
+    return guessed
 
-
-    #checking if player has exited
-    if guessed != "back" :
-        centre(" " , "Do you wish to play again?")
-        ans = ans_check(option_list=["yes", "no"])
-        if ans == "yes" :
-            await startgame(user)
-    await homescreen(user)
-
-def word_choose(round,user,score) :
-
+async def word_choose(round,user,score) :
+    os.system('cls')
+    centre(" ", " Round - {round} ! ".format(round=round))
+    centre("-","-")
     #extracting user data
     file = open("user_data", "rb+")
     file.seek(0,0)
@@ -482,6 +498,7 @@ def word_choose(round,user,score) :
         point = 5
 
     #storing word indexes and characters
+    words_guessed = []
     word_choosen = word_choosen[:len(word_choosen)-1]
     revealed_words = int(len(word_choosen)/3)
     file.close()
@@ -508,6 +525,7 @@ def word_choose(round,user,score) :
     word_str = ""
     trials = 10
     while word_str != word_choosen and trials > 0 :
+        centre("-","-")
         back = "false"
         #hint data
         hint_used = "no"
@@ -516,8 +534,12 @@ def word_choose(round,user,score) :
         word_str = ""
         for i in print_list :
             word_str += i 
+        guessed_str = "Words guessed till now : "
+        for i in words_guessed : 
+            guessed_str += i + ", "
         word_str = word_str.strip() 
         centre(" ", word_str)
+        centre(" ",guessed_str)
         centre(" ", "* hint")
         centre(" ", "* back")
         if word_str != word_choosen :
@@ -544,8 +566,13 @@ def word_choose(round,user,score) :
                 ques = "Enter a word"
                 string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
                 input_word = input(string)
+            os.system('cls')
+            centre(" ", " Round - {round} ! ".format(round=round))   
+
             if back != "true" :
                 #checking if input is correct
+                if input_word not in words_guessed :
+                    words_guessed.append(input_word)
                 if input_word in word_list : 
                     if hint_used == 'no' :
                         centre("-", " Correct Guess ")
@@ -556,7 +583,11 @@ def word_choose(round,user,score) :
                             if index in index_list :
                                 index_list.remove(index)
                         index += 1
-                else : 
+                    if trials <= 9 :          
+                        print(hangman_list[9-trials])
+                        centre(" "," ")
+                        centre(" ", "Trials left : {trials}".format(trials=trials))
+                else :
                     trials -= 1
                     centre("-", " Incorrect guess ! ")
                     print(hangman_list[9-trials])
@@ -577,6 +608,11 @@ def word_choose(round,user,score) :
             guessed = "yes"
             user_dic.update({"points" : user_dic["points"] + point})
             centre("-", " You guessed the word ! You gained {points} points ! ".format(points=point))
+            centre(" ", "Next round will start in.....") 
+            await asyncio.sleep(0.5) 
+            for i in range(1,4) :
+                centre(" " ,str(4-i))
+                await asyncio.sleep(1)
 
     #if player exits the game
     else :
@@ -594,7 +630,8 @@ def word_choose(round,user,score) :
     return guessed
 
 async def del_acc(user) :
-
+    os.system('cls')
+    centre("-","-")
     #printing main screen
     centre("=", " Accound deletion ")
     centre(" ", "Are you sure you wish to delete your account?")
@@ -671,6 +708,7 @@ file.close()
 
 #forever running loop for the game
 while 1 < 2 :
+    os.system('cls')
     string = ""
     for i in  lines : 
         print(middle + i.strip('\n'))

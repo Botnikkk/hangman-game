@@ -35,6 +35,15 @@ def centre(symbol, title) :
     gap2 = str(symbol)*(128- len(title) - len(gap))
     print( middle + "|" + gap + title + gap2 + "|" + "\n" + middle + "|" + 128*" " + "|")
 
+async def redirect(redirect):
+    for i in range(3,0,-1):
+        title = "Redirecting to {redirect} in {i}...".format(redirect=redirect,i=i)
+        symbol = " "
+        gap = str(symbol)*(64-int((len(title)/2)))
+        gap2 = str(symbol)*(128- len(title) - len(gap))
+        print(( middle + "|" + gap + title + gap2 + "|"),end='\r') 
+        await asyncio.sleep(1)
+
 def ans_check(option_list) :
 
     #prints and detetcs the answers and returns the choose answer
@@ -176,6 +185,7 @@ async def login() :
                 centre(symbol="=", title=" You were logged out ")
 
 async def homescreen(user):
+    await redirect("homescreen")
     os.system('cls')
     centre("-","-")
     #printing home bar
@@ -721,3 +731,4 @@ while 1 < 2 :
     else :
         centre("="," Exited the game ")
         break
+

@@ -1,19 +1,17 @@
-Info :
+Info
 
-This game was developed by Nikhil Chaudhary and Raghav Prakash, it is a simple hangman game with a variety of extra options like :
-
+This game was developed by Nikhil Chaudhary, it is a simple hangman game with a variety of extra options like :
 -> Buying and using hints
-
 -> Leaderboard
-
 -> User info database
 
-
-
-Guide :
-
+Guide
 After choosing the option "play" the game will start in 3 seconds here is the guide for the game :
-
-After the game starts a words will be shown with a few letters hidden, you simply type a random letter from the keyboard in range A-Z and if it is contained in the word it will be filled in it, if not you will loose a try. You get only 10 tries per round, if you guess the word correctly you advance to next round, if you fail to guess the word within 10 tries the game gets over. You can use your hints in between too, every hint used exposes a letter in the word but 3 letters will always be missing in the word at all times and you can only use 5 hints per round. You can even buy hints from the hint shop
-
+After the game starts a words will be shown with a few letters hidden
+After that you simply type a random letter from the keyboard in range A-Z 
+If it is contained in the word it will be filled in it, if not you will loose a try.
+You get only 10 tries per round, if you guess the word correctly you advance to next round
+If you fail to guess the word within 10 tries the game gets over.
+You can use your hints in between too, every hint used exposes a letter in the word but you can only use 5 hints per round.
+You can even buy hints from the hint shop
 The leaderboard in the game is based on number of words guessed in a single play.

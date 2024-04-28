@@ -1,9 +1,25 @@
-import operator
-import pickle as p
-import asyncio 
-import random
+
+
 import os
-import botnikkk as n
+try:
+    import operator
+    import pickle as p
+    import asyncio 
+    import random
+    import os
+    import botnikkk as n
+except :
+    os.system('cls')
+    print('Installing packages.....')
+    os.system(' pip install -r requirements.txt')
+    os.system('cls')
+    import operator
+    import pickle as p
+    import asyncio 
+    import random
+    import os
+    import botnikkk as n
+input('Please enter fullscreen mode for best experience, input any key if you are in fullscreen mode - ')
 
 file_path = "user_data"
 

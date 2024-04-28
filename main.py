@@ -603,7 +603,8 @@ hangman = file.readlines()
 file.close()
 hangman_list = []
 string = ""
-middle = n.centre('middle')[1]
+alignments = n.get_alignments()
+left_align = alignments["left_align"]*" "
 for i in hangman :
     try : 
         int(i.strip('\n'))
@@ -611,7 +612,7 @@ for i in hangman :
         string = ""
     except :
         gap = " "*(129 - int((len(i))) - 50)
-        string += middle + "|" + " "*(50)  +  i.strip("\n") +  gap + "|\n"
+        string += left_align + "|" + " "*(50)  +  i.strip("\n") +  gap + "|\n"
 
 #cool entry screen 
 file = open("design.txt",encoding= "utf8")
@@ -624,7 +625,7 @@ while 1 < 2 :
     os.system('cls')
     string = ""
     for i in  lines : 
-        print(middle + i.strip('\n'))
+        print(left_align + i.strip('\n'))
     n.centre("Are you a existing user ?")
     answer  = n.ans_check(option_list=["yes", "no", "exit game"])   
     if answer == "yes" :
@@ -632,5 +633,5 @@ while 1 < 2 :
     elif answer == "no" :
         asyncio.run(signup())
     else :
-        n.centre("Exited the game ",symbol='=')
+        n.centre("Exited the game",symbol='=')
         break
